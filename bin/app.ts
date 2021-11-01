@@ -34,7 +34,7 @@ const app = new cdk.App();
  *
  * Mode A: Synthesize the toolchain stack. This is the default mode.
  *         This is used during the initial deployment of the solution, and by
- *         the 'cicd-pipeline' for synthesizing the stack during updates.
+ *         the CI/CD Pipeline for synthesizing the stack during updates.
  *         No additional arguments are used.
  *
  * Mode B: In this mode, the application synthesizes a silo or pool workload pipeline
