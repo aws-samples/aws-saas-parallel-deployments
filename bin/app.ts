@@ -37,9 +37,9 @@ const app = new cdk.App();
  *         the 'cicd-pipeline' for synthesizing the stack during updates.
  *         No additional arguments are used.
  *
- * Mode B: In this mode, the application synthesizes a silo or pool pipeline stack.
- *         To operate in this mode, cdk is called with the following context
- *         variables (-c in the cli)
+ * Mode B: In this mode, the application synthesizes a silo or pool workload pipeline
+ *         stack. To operate in this mode, AWS CDK CLI is called with the following
+ *         context variables (-c in the CLI)
  *
  *         deployment_type  : the type of deployment stack to create (silo|pool)
  *         deployment_id    : the deployment id (siloid|poolid)
@@ -61,7 +61,7 @@ if (!deploymentType) {
     env: TOOLCHAIN_ENV,
   });
 } else {
-  // Mode B: Synthetize workload pipeline
+  // Mode B: synthetize the workload pipeline stack
   const stackName = deploymentType + '-' + deploymentId + '-pipeline';
   console.log('Synthesizing stack for ' + stackName);
   console.log('deployment_id: ' + deploymentId);
