@@ -28,7 +28,7 @@ Deployments have two parts: The pipeline (5) and the component resource stack(s)
 
 The following tools are required to deploy the solution:
 
-* NodeJS version [compatible with AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites) version 1.124.0
+* NodeJS version [compatible with AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites)
 * The [AWS Command Line Interface](https://aws.amazon.com/cli/) (AWS CLI)
 * Git with [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) extension
 
@@ -163,7 +163,7 @@ The file lib/configuration.ts contains the solution's configurable variables:
 ```
 DEPLOYMENT_TABLE_NAME = 'unicorn-deployments'
 REPOSITORY_NAME = 'unicorn-repository'
-CDK_VERSION = '1.124.0'
+CDK_VERSION = '1.145.0'
 
 export const TOOLCHAIN_ENV = {
   region: process.env.CDK_DEFAULT_REGION,

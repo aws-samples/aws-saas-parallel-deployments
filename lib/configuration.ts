@@ -18,7 +18,7 @@
 
 export const DEPLOYMENT_TABLE_NAME = 'unicorn-deployments'; // DynamoDB table name that will be created for deployment management
 export const REPOSITORY_NAME = 'unicorn-repository'; // CodeCommit repository name that holds the code
-export const CDK_VERSION = '1.124.0'; // Used to set CodePipeline CLI version
+export const CDK_VERSION = '1.145.0'; // Used to set CodePipeline CLI version
 
 // For production use, specifying exact account and region here is recommended
 export const TOOLCHAIN_ENV = {
