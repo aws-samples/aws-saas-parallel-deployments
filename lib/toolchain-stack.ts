@@ -16,35 +16,31 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import * as cdk from '@aws-cdk/core';
-import * as pipelines from '@aws-cdk/pipelines';
-import * as codecommit from '@aws-cdk/aws-codecommit';
-import * as iam from '@aws-cdk/aws-iam';
-import * as codebuild from '@aws-cdk/aws-codebuild';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as lambda from '@aws-cdk/aws-lambda';
+import { Stack, StackProps, RemovalPolicy, aws_codecommit, aws_dynamodb, pipelines, aws_iam, aws_codebuild, DefaultStackSynthesizer, aws_lambda } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import * as path from 'path';
-import { DynamoEventSource } from '@aws-cdk/aws-lambda-event-sources';
+import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { DEPLOYMENT_TABLE_NAME, REPOSITORY_NAME, CDK_VERSION } from './configuration';
 
-export class ToolchainStack extends cdk.Stack {
 
-  constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
+export class ToolchainStack extends Stack {
+
+  constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    const deploymentTable = new dynamodb.Table(this, 'deployment-table', {
+    const deploymentTable = new aws_dynamodb.Table(this, 'deployment-table', {
       tableName: DEPLOYMENT_TABLE_NAME,
       partitionKey: {
         name: 'id',
-        type: dynamodb.AttributeType.STRING,
+        type: aws_dynamodb.AttributeType.STRING,
       },
-      stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      stream: aws_dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
+      billingMode: aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     // Importing pre-created CodeCommit repository by name.
-    const sourceRepository = codecommit.Repository.fromRepositoryName(this, 'repository', REPOSITORY_NAME);
+    const sourceRepository = aws_codecommit.Repository.fromRepositoryName(this, 'repository', REPOSITORY_NAME);
 
     const synthStep = new pipelines.CodeBuildStep('synth', {
       input: pipelines.CodePipelineSource.codeCommit(sourceRepository, 'main'),
@@ -61,12 +57,12 @@ export class ToolchainStack extends cdk.Stack {
       cliVersion: CDK_VERSION,
     });
 
-    const updateDeploymentsRole = new iam.Role(this, 'update-deployments-role', {
-      assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
+    const updateDeploymentsRole = new aws_iam.Role(this, 'update-deployments-role', {
+      assumedBy: new aws_iam.ServicePrincipal('codebuild.amazonaws.com'),
       inlinePolicies: {
-        'deployment-policy': new iam.PolicyDocument({
+        'deployment-policy': new aws_iam.PolicyDocument({
           statements: [
-            new iam.PolicyStatement({
+            new aws_iam.PolicyStatement({
               actions: [
                 'codepipeline:StartPipelineExecution',
                 'codepipeline:GetPipelineExecution',
@@ -76,21 +72,21 @@ export class ToolchainStack extends cdk.Stack {
                 'arn:aws:codepipeline:' + this.region + ':' + this.account + ':silo-*-pipeline',
                 'arn:aws:codepipeline:' + this.region + ':' + this.account + ':pool-*-pipeline',
               ],
-              effect: iam.Effect.ALLOW,
+              effect: aws_iam.Effect.ALLOW,
             }),
-            new iam.PolicyStatement({
+            new aws_iam.PolicyStatement({
               actions: ['cloudformation:ListStacks'],
-              effect: iam.Effect.ALLOW,
+              effect: aws_iam.Effect.ALLOW,
               resources: ['*'],
             }),
-            new iam.PolicyStatement({
+            new aws_iam.PolicyStatement({
               actions: ['dynamodb:Query', 'dynamodb:Scan'],
-              effect: iam.Effect.ALLOW,
+              effect: aws_iam.Effect.ALLOW,
               resources: [deploymentTable.tableArn, deploymentTable.tableArn + '/index/*'],
             }),
-            new iam.PolicyStatement({
+            new aws_iam.PolicyStatement({
               actions: ['ec2:DescribeRegions'],
-              effect: iam.Effect.ALLOW,
+              effect: aws_iam.Effect.ALLOW,
               resources: ['*'],
             }),
           ],
@@ -107,7 +103,7 @@ export class ToolchainStack extends cdk.Stack {
             'npx ts-node bin/update-deployments.ts',
           ],
           buildEnvironment: {
-            buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
+            buildImage: aws_codebuild.LinuxBuildImage.STANDARD_5_0,
           },
           role: updateDeploymentsRole,
         }),
@@ -116,16 +112,16 @@ export class ToolchainStack extends cdk.Stack {
 
 
     // CodeBuild Project for Provisioning Build Job
-    const project = new codebuild.Project(this, 'provisioning-project', {
+    const project = new aws_codebuild.Project(this, 'provisioning-project', {
       projectName: 'provisioning-project',
-      source: codebuild.Source.codeCommit({
+      source: aws_codebuild.Source.codeCommit({
         repository: sourceRepository,
         branchOrRef: 'refs/heads/main',
       }),
       environment: {
-        buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
+        buildImage: aws_codebuild.LinuxBuildImage.STANDARD_5_0,
       },
-      buildSpec: codebuild.BuildSpec.fromObject({
+      buildSpec: aws_codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
           build: {
@@ -139,39 +135,39 @@ export class ToolchainStack extends cdk.Stack {
     });
 
     // Allow provision project to use CDK bootstrap roles. These are required when provision project runs CDK deploy
-    project.addToRolePolicy(new iam.PolicyStatement({
+    project.addToRolePolicy(new aws_iam.PolicyStatement({
       actions: ['sts:AssumeRole'],
       resources: [
-        'arn:aws:iam::' + this.account + ':role/cdk-' + cdk.DefaultStackSynthesizer.DEFAULT_QUALIFIER + '-deploy-role-' + this.account + '-' + this.region,
-        'arn:aws:iam::' + this.account + ':role/cdk-' + cdk.DefaultStackSynthesizer.DEFAULT_QUALIFIER + '-file-publishing-role-' + this.account + '-' + this.region,
-        'arn:aws:iam::' + this.account + ':role/cdk-' + cdk.DefaultStackSynthesizer.DEFAULT_QUALIFIER + '-image-publishing-role-' + this.account + '-' + this.region,
+        'arn:aws:iam::' + this.account + ':role/cdk-' + DefaultStackSynthesizer.DEFAULT_QUALIFIER + '-deploy-role-' + this.account + '-' + this.region,
+        'arn:aws:iam::' + this.account + ':role/cdk-' + DefaultStackSynthesizer.DEFAULT_QUALIFIER + '-file-publishing-role-' + this.account + '-' + this.region,
+        'arn:aws:iam::' + this.account + ':role/cdk-' + DefaultStackSynthesizer.DEFAULT_QUALIFIER + '-image-publishing-role-' + this.account + '-' + this.region,
       ],
-      effect: iam.Effect.ALLOW,
+      effect: aws_iam.Effect.ALLOW,
     }));
 
     // Allow provision project to get AWS regions.
     // This is required for deployment information validation.
-    project.addToRolePolicy(new iam.PolicyStatement({
+    project.addToRolePolicy(new aws_iam.PolicyStatement({
       actions: ['ec2:DescribeRegions'],
-      effect: iam.Effect.ALLOW,
+      effect: aws_iam.Effect.ALLOW,
       resources: ['*'],
     }));
 
     // Lambda Function for DynamoDB Streams
-    const streamLambda = new lambda.Function(this, 'stream-lambda', {
-      runtime: lambda.Runtime.NODEJS_14_X,
+    const streamLambda = new aws_lambda.Function(this, 'stream-lambda', {
+      runtime: aws_lambda.Runtime.NODEJS_14_X,
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, 'lambdas/stream-lambda')),
+      code: aws_lambda.Code.fromAsset(path.join(__dirname, 'lambdas/stream-lambda')),
       environment: {
         PROJECT_NAME: 'provisioning-project',
       },
     });
 
-    streamLambda.role?.attachInlinePolicy(new iam.Policy(this, 'start-pipeline-policy', {
-      document: new iam.PolicyDocument({
+    streamLambda.role?.attachInlinePolicy(new aws_iam.Policy(this, 'start-pipeline-policy', {
+      document: new aws_iam.PolicyDocument({
         statements: [
-          new iam.PolicyStatement({
-            effect: iam.Effect.ALLOW,
+          new aws_iam.PolicyStatement({
+            effect: aws_iam.Effect.ALLOW,
             resources: [project.projectArn],
             actions: ['codebuild:StartBuild'],
           }),
@@ -180,7 +176,7 @@ export class ToolchainStack extends cdk.Stack {
     }));
 
     streamLambda.addEventSource(new DynamoEventSource(deploymentTable, {
-      startingPosition: lambda.StartingPosition.LATEST,
+      startingPosition: aws_lambda.StartingPosition.LATEST,
     }));
   }
 }

@@ -16,22 +16,21 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import * as cdk from '@aws-cdk/core';
-import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
-import * as pipelines from '@aws-cdk/pipelines';
-import * as codecommit from '@aws-cdk/aws-codecommit';
+import { Stack, StackProps, Environment, pipelines, aws_codecommit, aws_codepipeline_actions} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { ComponentStage } from './component-resources-stack';
 import { REPOSITORY_NAME, CDK_VERSION } from './configuration';
 
 
-interface WorkloadPipelineProps extends cdk.StackProps {
+
+interface WorkloadPipelineProps extends StackProps {
   deploymentId: string,
-  componentEnv: cdk.Environment,
+  componentEnv: Environment,
   deploymentType: string,
 }
 
-export class WorkloadPipelineStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: WorkloadPipelineProps) {
+export class WorkloadPipelineStack extends Stack {
+  constructor(scope: Construct, id: string, props: WorkloadPipelineProps) {
     super(scope, id, props);
 
     const synthCdkParams =
@@ -41,9 +40,9 @@ export class WorkloadPipelineStack extends cdk.Stack {
     ' -c component_region='+props.componentEnv.region;
 
     const codecommitInput = pipelines.CodePipelineSource.codeCommit(
-      codecommit.Repository.fromRepositoryName(this, 'repository', REPOSITORY_NAME),
+      aws_codecommit.Repository.fromRepositoryName(this, 'repository', REPOSITORY_NAME),
       'main',
-      { trigger: codepipeline_actions.CodeCommitTrigger.NONE },
+      { trigger: aws_codepipeline_actions.CodeCommitTrigger.NONE },
     );
 
     const synthStep = new pipelines.CodeBuildStep('synth', {

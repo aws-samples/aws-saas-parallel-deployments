@@ -16,20 +16,20 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import * as cdk from '@aws-cdk/core';
-import * as apprunner from '@aws-cdk/aws-apprunner';
+import { Stack, StackProps, Stage, StageProps, aws_apprunner} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 
-interface DemoApprunnerStackProps extends cdk.StackProps {
+interface DemoApprunnerStackProps extends StackProps {
   deploymentId: string,
   deploymentType: string,
 }
 
-export class DemoApprunnerStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: DemoApprunnerStackProps) {
+export class DemoApprunnerStack extends Stack {
+  constructor(scope: Construct, id: string, props: DemoApprunnerStackProps) {
     super(scope, id, props);
 
-    new apprunner.CfnService(this, 'app-runner', {
+    new aws_apprunner.CfnService(this, 'app-runner', {
       sourceConfiguration: {
         imageRepository: {
           imageIdentifier: 'public.ecr.aws/aws-containers/hello-app-runner:latest',
@@ -42,13 +42,13 @@ export class DemoApprunnerStack extends cdk.Stack {
   }
 }
 
-interface ComponentStageProps extends cdk.StageProps {
+interface ComponentStageProps extends StageProps {
   deploymentId: string,
   deploymentType: string
 }
 
-export class ComponentStage extends cdk.Stage {
-  constructor(scope: cdk.Construct, id: string, props: ComponentStageProps) {
+export class ComponentStage extends Stage {
+  constructor(scope: Construct, id: string, props: ComponentStageProps) {
     super(scope, id, props);
 
     // The starting point of your component resource stack(s)

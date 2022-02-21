@@ -11,7 +11,7 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.145.0",
+    "@aws-cdk/assert": "^2.1.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
@@ -22,21 +22,11 @@
     "typescript": "~4.3.5"
   },
   "dependencies": {
-    "@aws-cdk/aws-apprunner": "1.145.0",
-    "@aws-cdk/aws-codecommit": "1.145.0",
-    "@aws-cdk/aws-codepipeline": "1.145.0",
-    "@aws-cdk/aws-codepipeline-actions": "1.145.0",
-    "@aws-cdk/aws-dynamodb": "1.145.0",
-    "@aws-cdk/aws-kms": "1.145.0",
-    "@aws-cdk/aws-lambda-event-sources": "1.145.0",
-    "@aws-cdk/aws-ssm": "1.145.0",
-    "@aws-cdk/core": "1.145.0",
-    "@aws-cdk/pipelines": "1.145.0",
     "@aws-sdk/client-cloudformation": "3.31.0",
     "@aws-sdk/client-codepipeline": "3.31.0",
     "@aws-sdk/client-dynamodb": "3.31.0",
     "@aws-sdk/client-ec2": "3.31.0",
-    "aws-cdk": "1.145.0",
+    "aws-cdk": "2.13.0",
     "bufferutil": "^4.0.3",
     "canvas": "^2.8.0",
     "retire": "^3.0.0",
