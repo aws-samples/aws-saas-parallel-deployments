@@ -16,7 +16,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { Stack, StackProps, Environment, pipelines, aws_codecommit, aws_codepipeline_actions} from 'aws-cdk-lib';
+import { Stack, StackProps, Environment, pipelines } from 'aws-cdk-lib';
+import { Repository } from 'aws-cdk-lib/aws-codecommit';
+import { CodeCommitTrigger } from 'aws-cdk-lib/aws-codepipeline-actions';
 import { Construct } from 'constructs';
 import { ComponentStage } from './component-resources-stack';
 import { REPOSITORY_NAME, CDK_VERSION } from './configuration';
@@ -40,9 +42,9 @@ export class WorkloadPipelineStack extends Stack {
     ' -c component_region='+props.componentEnv.region;
 
     const codecommitInput = pipelines.CodePipelineSource.codeCommit(
-      aws_codecommit.Repository.fromRepositoryName(this, 'repository', REPOSITORY_NAME),
+      Repository.fromRepositoryName(this, 'repository', REPOSITORY_NAME),
       'main',
-      { trigger: aws_codepipeline_actions.CodeCommitTrigger.NONE },
+      { trigger: CodeCommitTrigger.NONE },
     );
 
     const synthStep = new pipelines.CodeBuildStep('synth', {

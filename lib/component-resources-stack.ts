@@ -16,7 +16,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { Stack, StackProps, Stage, StageProps, aws_apprunner} from 'aws-cdk-lib';
+import { Stack, StackProps, Stage, StageProps} from 'aws-cdk-lib';
+import { CfnService } from 'aws-cdk-lib/aws-apprunner';
 import { Construct } from 'constructs';
 
 
@@ -29,7 +30,7 @@ export class DemoApprunnerStack extends Stack {
   constructor(scope: Construct, id: string, props: DemoApprunnerStackProps) {
     super(scope, id, props);
 
-    new aws_apprunner.CfnService(this, 'app-runner', {
+    new CfnService(this, 'app-runner', {
       sourceConfiguration: {
         imageRepository: {
           imageIdentifier: 'public.ecr.aws/aws-containers/hello-app-runner:latest',
