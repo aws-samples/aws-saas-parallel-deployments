@@ -4,6 +4,8 @@
 
 This repository contains sample code for the blog post [Parallel and dynamic SaaS deployments with CDK Pipelines](https://aws.amazon.com/blogs/devops/parallel-and-dynamic-saas-deployments-with-cdk-pipelines/).
 
+Note: This branch has been updated for CDK v2. The original CDK v1 -compatible code has been archived in the 'cdk_v1' branch.
+
 ## Solution overview
 
 Many customers today use AWS CodePipeline to build, test and deploy their cloud applications. For a SaaS provider, considering using a single pipeline for managing all the deployments present concerns. A single pipeline with potentially hundreds of actions runs the risk of becoming throughput limited. A single pipeline would also limit control in how changes are released. This solution approaches this problem by having a separate dynamically provisioned pipeline for each pool and silo deployment.
@@ -58,12 +60,6 @@ Clone the sample code repository from GitHub, and then install the dependencies 
 git clone https://github.com/aws-samples/aws-saas-parallel-deployments
 cd aws-saas-parallel-deployments
 npm ci
-```
-
-CDK Pipelines requires use of modern bootstrapping. To ensure this is enabled, start by setting the related environment variable:
-
-```
-export CDK_NEW_BOOTSTRAP=1
 ```
 
 Then, bootstrap the toolchain account. You must bootstrap both the region where the toolchain stack is deployed, as well as every target region for component resources. Here, we will first bootstrap only the us-east-1 region, and later you can optionally bootstrap additional region(s).
@@ -163,7 +159,7 @@ The file lib/configuration.ts contains the solution's configurable variables:
 ```
 DEPLOYMENT_TABLE_NAME = 'unicorn-deployments'
 REPOSITORY_NAME = 'unicorn-repository'
-CDK_VERSION = '1.145.0'
+CDK_VERSION = '2.13.0'
 
 export const TOOLCHAIN_ENV = {
   region: process.env.CDK_DEFAULT_REGION,
