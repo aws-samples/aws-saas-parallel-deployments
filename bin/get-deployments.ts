@@ -23,7 +23,7 @@ import { getCloudFormationStacks, getRegions, scanDynamoDB } from '../lib/apitoo
 import { saveConfig, isValidDeploymentRecord } from '../lib/configtools';
 
 /*
- * This utility reads a point-in-time snapshot of the deployment datase,
+ * This utility reads a point-in-time snapshot of the deployment database,
  * validates all records, and checks the provisioning status of each
  * deployment. The resulting file is stored in build_output directory,
  * so that it can be read by the update-deployments utility.
