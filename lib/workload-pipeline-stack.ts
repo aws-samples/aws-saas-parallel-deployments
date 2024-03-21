@@ -50,7 +50,7 @@ export class WorkloadPipelineStack extends Stack {
     const synthStep = new pipelines.CodeBuildStep('synth', {
       input: codecommitInput,
       commands: [
-        'npm ci',
+        'npm install',
         'npx cdk synth -q --verbose' + synthCdkParams,
       ],
     });
@@ -61,7 +61,6 @@ export class WorkloadPipelineStack extends Stack {
       selfMutation: true,
       synth: synthStep,
       crossAccountKeys: true,
-      cliVersion: CDK_VERSION,
     });
 
     pipeline.addStage(new ComponentStage(this, props.deploymentId, {
