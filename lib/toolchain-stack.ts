@@ -51,7 +51,7 @@ export class ToolchainStack extends Stack {
     const synthStep = new CodeBuildStep('synth', {
       input: CodePipelineSource.codeCommit(sourceRepository, 'main'),
       commands: [
-        'npm ci',
+        'npm install',
         'npx cdk synth -q --verbose',
       ],
     });
@@ -60,7 +60,6 @@ export class ToolchainStack extends Stack {
       pipelineName: 'CICD-Pipeline',
       selfMutation: true,
       synth: synthStep,
-      cliVersion: CDK_VERSION,
     });
 
     const updateDeploymentsRole = new Role(this, 'update-deployments-role', {
@@ -104,7 +103,8 @@ export class ToolchainStack extends Stack {
       post: [
         new CodeBuildStep('update-deployments', {
           commands: [
-            'npm ci',
+            'echo Hello World',
+            'npm install',
             'npx ts-node bin/get-deployments.ts',
             'npx ts-node bin/update-deployments.ts',
           ],
@@ -132,7 +132,7 @@ export class ToolchainStack extends Stack {
         phases: {
           build: {
             commands: [
-              'npm ci',
+              'npm install',
               'npx ts-node bin/provision-deployment.ts',
             ],
           },
@@ -161,7 +161,7 @@ export class ToolchainStack extends Stack {
 
     // Lambda Function for DynamoDB Streams
     const streamLambda = new Function(this, 'stream-lambda', {
-      runtime: Runtime.NODEJS_14_X,
+      runtime: Runtime.NODEJS_18_X,
       handler: 'index.handler',
       code: Code.fromAsset(path.join(__dirname, 'lambdas/stream-lambda')),
       environment: {
